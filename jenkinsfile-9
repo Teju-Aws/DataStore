@@ -1,10 +1,11 @@
 pipeline {
-  agent any
-stages {
-    stage("Repo Clone") {
-      steps {
-        checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Teju-Aws/DataStore.git']])
-      }
+    agent any
+
+    stages {
+        stage("Repo Clone") {
+            steps {
+                git branch: 'master', url: 'https://github.com/Teju-Aws/DataStore.git'
+            }
+        }
     }
-}
 }
