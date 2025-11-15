@@ -7,5 +7,25 @@ pipeline {
                 git branch: 'master', url: 'https://github.com/Teju-Aws/DataStore.git'
             }
         }
+    
+        stage("Maven Build") {
+            steps {
+                sh """
+                    echo "-------- Building Application --------"
+                    mvn clean package
+                    echo "------- Application Built Successfully --------"
+                """
+            }
+        }
+
+        stage("Maven Test") {
+            steps {
+                sh """
+                    echo "-------- Executing Testcases --------"
+                    mvn test
+                    echo "-------- Testcases Execution Complete --------"
+                """
+            }
+        }
     }
 }
