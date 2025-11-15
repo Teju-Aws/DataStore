@@ -47,7 +47,7 @@ pipeline {
             steps {
                 sh """
                     echo "-------- Building Docker Image --------"
-                    docker build -t datastore:${App_Version} .
+                    docker build -t tejaswini121/datastore:${App_Version} .
                     echo "-------- Image Successfully Built --------"
                 """
             }
