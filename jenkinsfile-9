@@ -96,15 +96,16 @@ pipeline {
             }
         }
 
-        stage("Triggering Deployment Job") {
-            steps {
-                build job: "KubernetesDeployment",
-                      parameters: [
-                          string(name: "App_Name", value: "datastore-deploy"),
-                          string(name: "App_Version", value: "${App_Version}")
-                      ]
-            }
-        }
+       stage("Triggering Deployment Job") {
+    steps {
+        build job: "KubernetesDeployment",
+              parameters: [
+                  string(name: "App_Name", value: "datastore-deploy"),
+                  string(name: "App_Version", value: "${App_Version}")
+              ]
+    }
+}
+
     }
 
     post {
