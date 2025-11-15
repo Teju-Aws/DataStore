@@ -64,7 +64,7 @@ pipeline {
             }
         }
 
-        stage("Loggingin & Pushing Docker image") {
+        stage("Docker Login & Push") {
             steps {
                 sh """
                     echo "-------- Logging To DockerHub --------"
@@ -87,18 +87,27 @@ pipeline {
                 """
             }
         }
- stage("Deployment Acceptance") {
-      steps {
-        input 'Trigger Down Stream Job'
-      }
+
+        stage("Deployment Acceptance") {
+            steps {
+                script {
+                    input message: "Trigger Deployment?"
+                }
+            }
+        }
+
+        stage("Trigger Deployment Job") {
+            steps {
+                build job: "KubernetesDeployment",
+                    parameters: [
+                        string(name: "App_Name", value: "datastore-deploy"),
+                        string(name: "App_Version", value: "${App_Version}")
+                    ]
+            }
+        }
     }
-    stage("Triggering Deployment Job") {
-      steps {
-        build job: "KubernetesDeployment", parameters: [string(name: "App_Name", value: "datastore-deploy"), string(name: "App_Version", value: "${params.App_Version}")]
-      }
-    }
-  }
-  post {
+
+    post {
         success {
             slackSend channel: '#alerting',
                       color: 'good',
@@ -129,4 +138,4 @@ pipeline {
                       message: "ℹ️ Build finished: `${env.JOB_NAME} #${env.BUILD_NUMBER}`"
         }
     }
-} 
+}
