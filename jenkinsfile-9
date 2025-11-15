@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        App_Version = "1.0.0"   // You can update this dynamically if needed
+    }
+
     stages {
 
         stage("Repo Clone") {
@@ -35,6 +39,26 @@ pipeline {
                     echo "-------- Pushing Artifacts To S3 --------"
                     aws s3 cp ./target/*.jar s3://jenkiz-bucket/
                     echo "-------- Pushing Artifacts To S3 Completed --------"
+                """
+            }
+        }
+
+        stage("Docker Image Build") {
+            steps {
+                sh """
+                    echo "-------- Building Docker Image --------"
+                    docker build -t datastore:${App_Version} .
+                    echo "-------- Image Successfully Built --------"
+                """
+            }
+        }
+
+        stage("Docker Image Scan") {
+            steps {
+                sh """
+                    echo "-------- Scanning Docker Image --------"
+                    trivy image datastore:${App_Version}
+                    echo "-------- Scanning Docker Image Complete --------"
                 """
             }
         }
