@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         App_Version = "1.0.0"
-        DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB_CREDENTIALS')
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
     }
 
     stages {
