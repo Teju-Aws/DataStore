@@ -2,8 +2,12 @@ pipeline {
     agent any
 
     environment {
-        App_Version = "1.0.0"
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')   // DockerHub credentials stored in Jenkins
+        GITHUB_TOKEN = credentials('jenkiz-token')         // GitHub PAT stored in Jenkins
+    }
+
+    parameters {
+        string(name: "App_Version", defaultValue: "1.0.0", description: "Version of the application that needs to be deployed")
     }
 
     stages {
@@ -48,7 +52,7 @@ pipeline {
             steps {
                 sh """
                     echo "-------- Building Docker Image --------"
-                    docker build -t tejaswini121/datastore:${App_Version} .
+                    docker build -t tejaswini121/datastore:${params.App_Version} .
                     echo "-------- Image Successfully Built --------"
                 """
             }
@@ -58,7 +62,7 @@ pipeline {
             steps {
                 sh """
                     echo "-------- Scanning Docker Image --------"
-                    trivy image tejaswini121/datastore:${App_Version}
+                    trivy image tejaswini121/datastore:${params.App_Version}
                     echo "-------- Scanning Docker Image Complete --------"
                 """
             }
@@ -72,7 +76,7 @@ pipeline {
                     echo "-------- DockerHub Login Successful --------"
 
                     echo "-------- Pushing Docker Image To DockerHub --------"
-                    docker push tejaswini121/datastore:${App_Version}
+                    docker push tejaswini121/datastore:${params.App_Version}
                     echo "-------- Docker Image Pushed Successfully --------"
                 """
             }
@@ -96,12 +100,16 @@ pipeline {
             }
         }
 
-       stage("Triggering Deployment Job") {
-      steps {
-        build job: "KubernetesDeployment", parameters: [string(name: "App_Name", value: "datastore-deploy"), string(name: "App_Version", value: "${params.App_Version}")]
-      }
-    }
-  
+        stage("Triggering Deployment Job") {
+            steps {
+                build job: "KubernetesDeployment", 
+                    parameters: [
+                        string(name: "App_Name", value: "datastore-deploy"),
+                        string(name: "App_Version", value: "${params.App_Version}")
+                    ]
+            }
+        }
+
     }
 
     post {
@@ -109,7 +117,7 @@ pipeline {
         success {
             slackSend channel: '#alerting',
                       color: 'good',
-                      message: "✔️ SUCCESS: `${env.JOB_NAME} #${env.BUILD_NUMBER}` completed successfully."
+                      message: "✔️ SUCCESS: `${env.JOB_NAME} #${env.BUILD_NUMBER}` completed successfully.\nApplication Version: ${params.App_Version}"
         }
 
         failure {
