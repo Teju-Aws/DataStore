@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         App_Version = "1.0.0"
+        DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB_CREDENTIALS')
     }
 
     stages {
@@ -57,41 +58,34 @@ pipeline {
             steps {
                 sh """
                     echo "-------- Scanning Docker Image --------"
-                    trivy image datastore:${App_Version}
+                    trivy image tejaswini121/datastore:${App_Version}
                     echo "-------- Scanning Docker Image Complete --------"
                 """
             }
         }
-stage("Docker Image Tag") {
-      steps{
-        sh """
-          echo "-------- Tagging Docker Image --------"
-          docker tag datastore:"${App_Version}" 288434312749/datastore:"${App_Version}"
-          echo "-------- Tagging Docker Image Completed."
-        """
-      }
-    }
- stage("Loggingin & Pushing Docker image") {
-      steps {
-        sh """
-          echo "-------- Logging To DockerHub --------"
-          docker login -u $DOCKERHUB_CREDENTIALS_USR --password $DOCKERHUB_CREDENTIALS_PSW
-          echo "-------- DockerHub Login Successful --------"
 
-          echo "-------- Pushing Docker Image To DockerHub --------"
-          docker push tejaswini121/datastore:"${App_Version}"
-          echo "-------- Docker Image Pushed Successfully --------"
-        """
-      }
-    }
-    stage("cleanup") {
-      steps {
-        sh """
-           echo "-------- Cleaning Up Jenkins Machine --------"
-           docker image prune -a -f
-           echo "-------- Clean Up Successful --------"
-        """
-      }
-    }
+        stage("Loggingin & Pushing Docker image") {
+            steps {
+                sh """
+                    echo "-------- Logging To DockerHub --------"
+                    docker login -u $DOCKERHUB_CREDENTIALS_USR --password $DOCKERHUB_CREDENTIALS_PSW
+                    echo "-------- DockerHub Login Successful --------"
+
+                    echo "-------- Pushing Docker Image To DockerHub --------"
+                    docker push tejaswini121/datastore:${App_Version}
+                    echo "-------- Docker Image Pushed Successfully --------"
+                """
+            }
+        }
+
+        stage("Cleanup") {
+            steps {
+                sh """
+                    echo "-------- Cleaning Up Jenkins Machine --------"
+                    docker image prune -a -f
+                    echo "-------- Clean Up Successful --------"
+                """
+            }
+        }
     }
 }
