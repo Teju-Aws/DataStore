@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        App_Version = "1.0.0"   // You can update this dynamically if needed
+        App_Version = "1.0.0"
     }
 
     stages {
