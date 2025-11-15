@@ -79,7 +79,7 @@ stage("Docker Image Tag") {
           echo "-------- DockerHub Login Successful --------"
 
           echo "-------- Pushing Docker Image To DockerHub --------"
-          docker push 288434312749/datastore:"${App_Version}"
+          docker push tejaswini121/datastore:"${App_Version}"
           echo "-------- Docker Image Pushed Successfully --------"
         """
       }
