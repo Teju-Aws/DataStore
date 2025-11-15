@@ -87,18 +87,27 @@ pipeline {
                 """
             }
         }
- stage("Deployment Acceptance") {
-      steps {
-        input 'Trigger Down Stream Job'
-      }
-    }
-    stage("Triggering Deployment Job") {
-      steps {
-        build job: "KubernetesDeployment", parameters: [string(name: "App_Name", value: "datastore-deploy"), string(name: "App_Version", value: "${params.App_Version}")]
-      }
-    }
-  }
-  post {
+
+        stage("Deployment Acceptance") {
+            steps {
+                input 'Trigger Down Stream Job'
+            }
+        }
+
+        stage("Triggering Deployment Job") {
+            steps {
+                build job: "KubernetesDeployment", 
+                parameters: [
+                    string(name: "App_Name", value: "datastore-deploy"), 
+                    string(name: "App_Version", value: "${App_Version}")
+                ]
+            }
+        }
+
+    }  // ← end of stages
+
+    post {
+
         success {
             slackSend channel: '#alerting',
                       color: 'good',
